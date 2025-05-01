@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
-namespace LibProject.Models
+namespace LibProject.Models.Domain
 {
     public class Favorites
     {
@@ -11,9 +10,11 @@ namespace LibProject.Models
         public int Id { get; set; }
 
         [ForeignKey("book_id")]
-        public virtual Book Book { get; set; }
+        public int BookId { get; set; }
+        public virtual Book Book { get; set; } = null!; // Добавлен virtual
 
         [ForeignKey("reader_id")]
-        public virtual Reader Reader { get; set; }
+        public int ReaderId { get; set; }
+        public virtual Reader Reader { get; set; } = null!; // Добавлен virtual
     }
 }

@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using LibProject.Models;
-using LibProject.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using LibProject.DataBase;
+using LibProject.Models.Domain;
+using LibProject.ViewModels.Account;
 using System.Security.Cryptography;
 using System.Text;
-using System;
-using LibProject.DataBase;
 
 namespace LibProject.Controllers
 {

@@ -1,26 +1,34 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
-namespace LibProject.Models
+namespace LibProject.Models.Domain
 {
+    [Table("Reader")]
     public class Reader
     {
         [Key]
         [Column("id")]
         public int Id { get; set; }
 
-        [Column("firstname")]
-        [MaxLength(50)]
         [Required]
-        public string FirstName { get; set; }
-
-        [Column("lastname")]
+        [Column("first_name")]
         [MaxLength(50)]
-        [Required]
-        public string LastName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
 
+        [Required]
+        [Column("last_name")]
+        [MaxLength(50)]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required]
         [Column("password")]
-        [Required]
-        public string Password { get; set; }
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = string.Empty;
+
+        // Навигационные свойства
+        public virtual ICollection<Basket> Baskets { get; set; } = new List<Basket>();
+        public virtual ICollection<Favorites> Favorites { get; set; } = new List<Favorites>();
+        public virtual ICollection<BorrowedBook> BorrowedBooks { get; set; } = new List<BorrowedBook>();
     }
 }

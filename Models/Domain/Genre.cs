@@ -1,18 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
-namespace LibProject.Models
+namespace LibProject.Models.Domain
 {
+    [Table("Genre")]
     public class Genre
     {
         [Key]
         [Column("id")]
         public int Id { get; set; }
 
+        [Required]
         [Column("genresname")]
         [MaxLength(50)]
-        public string GenresName { get; set; }
-
+        [Display(Name = "Название жанра")]
+        public string Name { get; set; } = string.Empty;
     }
 }

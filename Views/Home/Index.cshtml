@@ -1,3 +1,5 @@
+<!-- Views/Home/Index.cshtml -->
+@model IEnumerable<LibProject.Models.Domain.Book>
 @{
     ViewData["Title"] = "Каталог книг";
 }
@@ -68,18 +70,18 @@
                                 </h6>
                                 <div id="genreFilters" class="accordion-collapse collapse show">
                                     <div class="accordion-body">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="genreRomance">
-                                            <label class="form-check-label" for="genreRomance">Роман</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="genreFantasy">
-                                            <label class="form-check-label" for="genreFantasy">Фэнтези</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="genreSciFi">
-                                            <label class="form-check-label" for="genreSciFi">Научная фантастика</label>
-                                        </div>
+                                        @foreach (var genre in ViewBag.Genres)
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input genre-filter" 
+                                                       type="checkbox" 
+                                                       value="@genre.Id" 
+                                                       id="genre-@genre.Id">
+                                                <label class="form-check-label" for="genre-@genre.Id">
+                                                    @genre.Name
+                                                </label>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -112,68 +114,141 @@
             <!-- Список книг -->
             <section class="col-lg-9">
                 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="bookList">
-                    <!-- Карточка книги -->
-                    <div class="col">
-                        <div class="card h-100 border-0 shadow-sm hover-effect">
-                            <div class="position-relative">
-                                <img src="https://cdn.respublica.ru/uploads/00/00/00/23/sq/e91e586af3b38e1d.jpg?1434988722" 
-                                     class="card-img-top book-image" 
-                                     alt="Обложка книги">
-                                <div class="card-actions position-absolute top-0 end-0 p-2">
-                                    <button class="btn btn-sm btn-light rounded-circle shadow-sm add-to-favorites">
-                                        <i class="bi bi-heart"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-primary rounded-circle shadow-sm add-to-cart">
-                                        <i class="bi bi-cart-plus"></i>
-                                    </button>
+                    @foreach (var book in Model)
+                    {
+                        <div class="col">
+                            <div class="card h-100 border-0 shadow-sm hover-effect">
+                                <div class="position-relative">
+                                    <img src="@book.ImageUrl" 
+                                         class="card-img-top book-image" 
+                                         alt="@book.Title">
+                                    <div class="card-actions position-absolute top-0 end-0 p-2">
+                                        <button class="btn btn-icon add-to-favorites" 
+                                                data-book-id="@book.Id"
+                                                data-bs-toggle="tooltip" 
+                                                title="@(book.IsFavorite ? "Удалить из избранного" : "Добавить в избранное")">
+                                            <i class="bi @(book.IsFavorite ? "bi-heart-fill text-danger" : "bi-heart") fs-5"></i>
+                                        </button>
+                                    </div>
+                                    <div class="book-badge position-absolute start-0 bottom-0 m-2">
+                                        <span class="badge @(book.IsAvailable ? "bg-success" : "bg-secondary")">
+                                            @(book.IsAvailable ? "В наличии" : "Нет в наличии")
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title fw-bold">Война и мир</h5>
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="badge bg-primary">Роман</span>
-                                    <small class="text-muted">1869</small>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title fw-bold mb-3">@book.Title</h5>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="badge bg-primary">@book.Genre?.Name</span>
+                                        <small class="text-muted">@book.Year</small>
+                                    </div>
+                                    <p class="card-text text-muted mb-4">@book.Author</p>
+                                    
+                                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                                        <div class="price">₽ @book.Price.ToString("N0")</div>
+                                        <button class="btn btn-primary add-to-cart" 
+                                                data-book-id="@book.Id"
+                                                @(book.IsAvailable ? "" : "disabled")>
+                                            <i class="bi bi-cart-plus me-2"></i>В корзину
+                                        </button>
+                                    </div>
                                 </div>
-                                <p class="card-text text-muted">Лев Толстой</p>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Остальные карточки книг с аналогичной структурой -->
+                    }
                 </div>
             </section>
         </div>
     </main>
 </div>
 
-<style>
-    .hero-section {
-        background: linear-gradient(135deg, #2c3e50, #3498db);
-        border-radius: 0 0 2rem 2rem;
-    }
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация тултипов
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
-    .hover-effect {
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
+        // Обработчик корзины
+        const updateCart = async () => {
+            try {
+                const response = await fetch('/Cart/GetCart');
+                if (!response.ok) throw new Error('Network error');
+                
+                const data = await response.json();
+                document.querySelector('.cart-badge').textContent = data.totalItems;
+                
+                const cartItemsHTML = data.items.map(item => `
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6>${item.title}</h6>
+                            <small class="text-muted">${item.author} (${item.addedDate})</small>
+                        </div>
+                        <div>
+                            <span class="me-3">₽${item.price}</span>
+                            <button class="btn btn-sm btn-danger remove-from-cart" data-item-id="${item.id}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('cartItems').innerHTML = cartItemsHTML;
+            } catch (error) {
+                console.error('Ошибка обновления корзины:', error);
+            }
+        };
 
-    .hover-effect:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
+        // Добавление в корзину
+        document.querySelectorAll('.add-to-cart').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const bookId = this.dataset.bookId;
+                try {
+                    const response = await fetch(`/Cart/AddToCart?bookId=${bookId}`, {
+                        method: 'POST'
+                    });
+                    
+                    if (response.ok) {
+                        await updateCart();
+                        this.classList.add('added');
+                        setTimeout(() => this.classList.remove('added'), 500);
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                }
+            });
+        });
 
-    .book-image {
-        height: 300px;
-        object-fit: cover;
-        border-radius: 0.5rem 0.5rem 0 0;
-    }
+        // Избранное
+        document.querySelectorAll('.add-to-favorites').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const bookId = this.dataset.bookId;
+                const icon = this.querySelector('i');
+                
+                try {
+                    const response = await fetch(`/Favorites/ToggleFavorite?bookId=${bookId}`, {
+                        method: 'POST'
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        icon.classList.toggle('bi-heart-fill', result.isFavorite);
+                        icon.classList.toggle('bi-heart', !result.isFavorite);
+                        icon.classList.toggle('text-danger', result.isFavorite);
+                        
+                        // Обновление подсказки
+                        this.setAttribute('title', result.isFavorite ? 
+                            "Удалить из избранного" : "Добавить в избранное");
+                        tooltipList.find(t => t._element === this).setContent({'.tooltip-inner': this.title});
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                }
+            });
+        });
 
-    .floating-cart {
-        z-index: 1000;
-    }
-
-    .cart-badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-    }
-</style>
+        // Первоначальная загрузка корзины
+        updateCart();
+    });
+</script>
+}
