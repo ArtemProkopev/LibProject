@@ -1,6 +1,26 @@
 @{
     ViewData["Title"] = "Политика конфиденциальности";
 }
+
+<style>
+    .privacy-card {
+        border-radius: 16px;
+        overflow: hidden;
+        margin-top: 2rem;
+    }
+    
+    .privacy-card .list-group-item {
+        background: rgba(248, 249, 250, 0.5);
+        border-color: rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .privacy-card .list-group-item:hover {
+        background: var(--background-light);
+        transform: translateX(8px);
+    }
+</style>
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">

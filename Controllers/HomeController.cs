@@ -32,10 +32,14 @@ namespace LibProject.Controllers
                 }
             }
 
-            // Гарантированно не-null значение
             ViewBag.Genres = await _context.Genres.ToListAsync() ?? new List<Genre>();
             
             return View(books);
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
         }
 
         private int GetCurrentUserId()

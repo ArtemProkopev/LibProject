@@ -29,19 +29,19 @@ namespace LibProject.Migrations
                         "Лев Толстой",
                         1869,
                         1200.00m,
-                        "https://example.com/war-and-peace.jpg",
+                        "https://cdn.respublica.ru/uploads/00/00/00/23/sq/e91e586af3b38e1d.jpg?1434988722",
                         true,
                         1
                     },
-                    {
-                        "1984",
-                        "Джордж Оруэлл",
-                        1949,
-                        950.00m,
-                        "https://example.com/1984.jpg",
-                        true,
-                        2
-                    }
+                    // {
+                    //     "1984",
+                    //     "Джордж Оруэлл",
+                    //     1949,
+                    //     950.00m,
+                    //     "https://cdn1.ozone.ru/s3/multimedia-y/6353881258.jpg",
+                    //     true,
+                    //     2
+                    // }
                 });
         }
 
