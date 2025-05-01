@@ -33,21 +33,7 @@ namespace LibProject.DataBase
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Конфигурация для BorrowedBook
-            modelBuilder.Entity<BorrowedBook>(entity =>
-            {
-                entity.HasOne(bb => bb.Reader)
-                    .WithMany(r => r.BorrowedBooks)
-                    .HasForeignKey(bb => bb.ReaderId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(bb => bb.Book)
-                    .WithMany(b => b.BorrowedBooks)
-                    .HasForeignKey(bb => bb.BookId)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            // Конфигурация для Basket (если нужно)
+            // Конфигурация для Basket
             modelBuilder.Entity<Basket>(entity =>
             {
                 entity.HasOne(b => b.Book)
@@ -59,6 +45,20 @@ namespace LibProject.DataBase
                     .WithMany(r => r.Baskets)
                     .HasForeignKey(b => b.ReaderId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Конфигурация для BorrowedBook
+            modelBuilder.Entity<BorrowedBook>(entity =>
+            {
+                entity.HasOne(bb => bb.Book)
+                    .WithMany(b => b.BorrowedBooks)
+                    .HasForeignKey(bb => bb.BookId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(bb => bb.Reader)
+                    .WithMany(r => r.BorrowedBooks)
+                    .HasForeignKey(bb => bb.ReaderId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

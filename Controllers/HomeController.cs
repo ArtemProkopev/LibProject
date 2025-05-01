@@ -26,59 +26,28 @@ namespace LibProject.Controllers
         {
             try
             {
-                var booksQuery = _context.Books
+                var books = await _context.Books
                     .Include(b => b.Genre)
                     .Include(b => b.Favorites)
-                    .AsQueryable();
+                    .AsNoTracking()
+                    .ToListAsync();
 
                 if (User.Identity?.IsAuthenticated ?? false)
                 {
                     var userId = GetCurrentUserId();
-                    booksQuery = booksQuery.Select(b => new Book
+                    foreach (var book in books)
                     {
-                        Id = b.Id,
-                        Title = b.Title,
-                        Author = b.Author,
-                        Year = b.Year,
-                        Price = b.Price,
-                        ImageUrl = b.ImageUrl,
-                        IsAvailable = b.IsAvailable,
-                        Genre = b.Genre,
-                        GenreId = b.GenreId,
-                        Favorites = b.Favorites,
-                        IsFavorite = b.Favorites.Any(f => f.ReaderId == userId)
-                    });
-                }
-                else
-                {
-                    booksQuery = booksQuery.Select(b => new Book
-                    {
-                        Id = b.Id,
-                        Title = b.Title,
-                        Author = b.Author,
-                        Year = b.Year,
-                        Price = b.Price,
-                        ImageUrl = b.ImageUrl,
-                        IsAvailable = b.IsAvailable,
-                        Genre = b.Genre,
-                        GenreId = b.GenreId,
-                        Favorites = b.Favorites,
-                        IsFavorite = false
-                    });
+                        book.IsFavorite = book.Favorites.Any(f => f.ReaderId == userId);
+                    }
                 }
 
-                var books = await booksQuery.AsNoTracking().ToListAsync();
                 ViewBag.Genres = await _context.Genres.AsNoTracking().ToListAsync();
-
                 return View(books);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка при загрузке главной страницы");
-                return View("Error", new ErrorViewModel 
-                { 
-                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier 
-                });
+                return View("Error");
             }
         }
 

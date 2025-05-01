@@ -33,7 +33,8 @@ namespace LibProject.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     first_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     last_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    password = table.Column<string>(type: "text", nullable: false)
+                    password = table.Column<string>(type: "text", nullable: false),
+                    registration_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -41,7 +42,7 @@ namespace LibProject.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Book",
+                name: "Books",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -56,9 +57,9 @@ namespace LibProject.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Book", x => x.id);
+                    table.PrimaryKey("PK_Books", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Book_Genre_genre_id",
+                        name: "FK_Books_Genre_genre_id",
                         column: x => x.genre_id,
                         principalTable: "Genre",
                         principalColumn: "id");
@@ -78,9 +79,9 @@ namespace LibProject.Migrations
                 {
                     table.PrimaryKey("PK_Basket", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Basket_Book_book_id",
+                        name: "FK_Basket_Books_book_id",
                         column: x => x.book_id,
-                        principalTable: "Book",
+                        principalTable: "Books",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -106,9 +107,9 @@ namespace LibProject.Migrations
                 {
                     table.PrimaryKey("PK_BorrowedBook", x => x.id);
                     table.ForeignKey(
-                        name: "FK_BorrowedBook_Book_book_id",
+                        name: "FK_BorrowedBook_Books_book_id",
                         column: x => x.book_id,
-                        principalTable: "Book",
+                        principalTable: "Books",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -132,9 +133,9 @@ namespace LibProject.Migrations
                 {
                     table.PrimaryKey("PK_Favorites", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Favorites_Book_BookId",
+                        name: "FK_Favorites_Books_BookId",
                         column: x => x.BookId,
-                        principalTable: "Book",
+                        principalTable: "Books",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -156,8 +157,8 @@ namespace LibProject.Migrations
                 column: "reader_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Book_genre_id",
-                table: "Book",
+                name: "IX_Books_genre_id",
+                table: "Books",
                 column: "genre_id");
 
             migrationBuilder.CreateIndex(
@@ -194,7 +195,7 @@ namespace LibProject.Migrations
                 name: "Favorites");
 
             migrationBuilder.DropTable(
-                name: "Book");
+                name: "Books");
 
             migrationBuilder.DropTable(
                 name: "Reader");

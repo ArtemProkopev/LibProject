@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace LibProject.Models.Domain
 {
-    [Table("Book")]
+    [Table("Books")]
     public class Book
     {
         [Key]

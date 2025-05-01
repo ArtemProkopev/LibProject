@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LibProject.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20250501163026_InitialCreate")]
+    [Migration("20250501170651_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -104,7 +104,7 @@ namespace LibProject.Migrations
 
                     b.HasIndex("GenreId");
 
-                    b.ToTable("Book");
+                    b.ToTable("Books");
                 });
 
             modelBuilder.Entity("LibProject.Models.Domain.BorrowedBook", b =>
@@ -210,6 +210,10 @@ namespace LibProject.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("password");
+
+                    b.Property<DateTime>("RegistrationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("registration_date");
 
                     b.HasKey("Id");
 

@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
@@ -25,6 +26,9 @@ namespace LibProject.Models.Domain
         [Column("password")]
         [DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
+
+        [Column("registration_date")]
+        public DateTime RegistrationDate { get; set; } = DateTime.UtcNow;
 
         // Навигационные свойства
         public virtual ICollection<Basket> Baskets { get; set; } = new List<Basket>();
