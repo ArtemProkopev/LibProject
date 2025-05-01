@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using LibProject.Models.Domain;
+using System.Collections.Generic;
 
 namespace LibProject.Models
 {

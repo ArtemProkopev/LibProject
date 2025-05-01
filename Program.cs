@@ -1,39 +1,69 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using LibProject.DataBase;
+using LibProject.Models.Domain;
+using LibProject.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSession(options =>
+// Настройка аутентификации
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/Login";
+        options.Cookie.HttpOnly = true;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+    });
+
+builder.Services.AddAuthorization(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(20);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
+    options.AddPolicy("AdminOnly", policy => 
+        policy.RequireRole("Admin"));
 });
+
+builder.Services.AddSession();
+
+// Настройка базы данных
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<ApplicationContext>(options =>
+    options.UseLazyLoadingProxies()
+           .UseNpgsql(connectionString));
 
 builder.Services.AddControllersWithViews();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-builder.Services.AddDbContext<ApplicationContext>(options =>
-    options.UseLazyLoadingProxies()
-           .UseNpgsql(connectionString)
-           .LogTo(Console.WriteLine, LogLevel.Information));
-
 var app = builder.Build();
 
+// Инициализация администратора
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+    if (!context.Readers.Any())
+    {
+        context.Readers.Add(new Reader
+        {
+            FirstName = "Admin",
+            LastName = "Admin",
+            Password = PasswordHasher.HashPassword("admin123"),
+            Role = "Admin"
+        });
+        context.SaveChanges();
+    }
+}
+
+// Конфигурация middleware
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-app.UseSession();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

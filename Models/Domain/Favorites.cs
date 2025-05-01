@@ -3,18 +3,22 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LibProject.Models.Domain
 {
+    [Table("Favorites")]
     public class Favorites
     {
         [Key]
         [Column("id")]
         public int Id { get; set; }
 
-        [ForeignKey("book_id")]
+        [Column("BookId")]
+        [ForeignKey("Book")]
         public int BookId { get; set; }
-        public virtual Book Book { get; set; } = null!; // Добавлен virtual
 
-        [ForeignKey("reader_id")]
+        [Column("ReaderId")]
+        [ForeignKey("Reader")]
         public int ReaderId { get; set; }
-        public virtual Reader Reader { get; set; } = null!; // Добавлен virtual
+
+        public virtual Book Book { get; set; } = null!;
+        public virtual Reader Reader { get; set; } = null!;
     }
 }

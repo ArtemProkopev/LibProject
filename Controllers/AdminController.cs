@@ -7,7 +7,7 @@ using LibProject.Models;
 
 namespace LibProject.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "AdminOnly")]
     public class AdminController : Controller
     {
         private readonly ApplicationContext _context;
@@ -19,7 +19,7 @@ namespace LibProject.Controllers
 
         public IActionResult Dashboard()
         {
-            var model = new AdminDashboardViewModel
+            return View(new AdminDashboardViewModel
             {
                 Readers = _context.Readers.ToList(),
                 BorrowedBooks = _context.BorrowedBooks
@@ -29,9 +29,7 @@ namespace LibProject.Controllers
                 AllBooks = _context.Books
                     .Include(b => b.Genre)
                     .ToList()
-            };
-
-            return View(model);
+            });
         }
     }
 }

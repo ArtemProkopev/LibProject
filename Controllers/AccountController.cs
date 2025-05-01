@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using LibProject.DataBase;
 using LibProject.Models.Domain;
 using LibProject.ViewModels.Account;
-using System.Security.Cryptography;
-using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
+using LibProject.Utils;
 
 namespace LibProject.Controllers
 {
@@ -18,91 +20,101 @@ namespace LibProject.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
+        public IActionResult Register() => View();
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+
+            if (await _context.Readers.AnyAsync(r => 
+                r.FirstName == model.FirstName && 
+                r.LastName == model.LastName))
             {
-                var existingUser = await _context.Readers
-                    .FirstOrDefaultAsync(r => r.FirstName == model.FirstName && r.LastName == model.LastName);
-
-                if (existingUser != null)
-                {
-                    ModelState.AddModelError(string.Empty, "Пользователь с таким именем и фамилией уже существует");
-                    return View(model);
-                }
-
-                var hashedPassword = HashPassword(model.Password);
-
-                var reader = new Reader
-                {
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Password = hashedPassword
-                };
-
-                _context.Readers.Add(reader);
-                await _context.SaveChangesAsync();
-
-                HttpContext.Session.SetInt32("UserId", reader.Id);
-                HttpContext.Session.SetString("UserName", $"{reader.FirstName} {reader.LastName}");
-
-                return RedirectToAction("Index", "Home");
+                ModelState.AddModelError(string.Empty, "Пользователь уже существует");
+                return View(model);
             }
 
-            return View(model);
+            var reader = new Reader
+            {
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Password = PasswordHasher.HashPassword(model.Password),
+                Role = "User"
+            };
+
+            _context.Readers.Add(reader);
+            await _context.SaveChangesAsync();
+            await SignInUser(reader);
+            
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null, bool requireAdmin = false)
         {
+            ViewBag.ReturnUrl = returnUrl;
+            ViewBag.RequireAdmin = requireAdmin;
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+
+            var hashedPassword = PasswordHasher.HashPassword(model.Password);
+            var reader = await _context.Readers.FirstOrDefaultAsync(r => 
+                r.FirstName == model.FirstName && 
+                r.LastName == model.LastName && 
+                r.Password == hashedPassword);
+
+            if (reader == null)
             {
-                var hashedPassword = HashPassword(model.Password);
-
-                var reader = await _context.Readers
-                    .FirstOrDefaultAsync(r => r.FirstName == model.FirstName &&
-                                            r.LastName == model.LastName &&
-                                            r.Password == hashedPassword);
-
-                if (reader != null)
-                {
-                    HttpContext.Session.SetInt32("UserId", reader.Id);
-                    HttpContext.Session.SetString("UserName", $"{reader.FirstName} {reader.LastName}");
-
-                    return RedirectToAction("Index", "Home");
-                }
-
-                ModelState.AddModelError(string.Empty, "Неверное имя, фамилия или пароль");
+                ModelState.AddModelError(string.Empty, "Неверные данные");
+                return View(model);
             }
 
-            return View(model);
+            // Проверка прав администратора если требуется
+            if (!string.IsNullOrEmpty(returnUrl) && returnUrl.Contains("/Admin") && reader.Role != "Admin")
+            {
+                ModelState.AddModelError(string.Empty, "Требуются права администратора");
+                ViewBag.RequireAdmin = true;
+                return View(model);
+            }
+
+            await SignInUser(reader);
+            return LocalRedirect(returnUrl ?? "/Home/Index");
         }
 
-        public IActionResult Logout()
+        [HttpPost]
+        public async Task<IActionResult> Logout()
         {
-            HttpContext.Session.Clear();
+            await HttpContext.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
-        private string HashPassword(string password)
+        private async Task SignInUser(Reader reader)
         {
-            using (var sha256 = SHA256.Create())
+            var claims = new List<Claim>
             {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
-            }
+                new(ClaimTypes.NameIdentifier, reader.Id.ToString()),
+                new(ClaimTypes.Name, $"{reader.FirstName} {reader.LastName}"),
+                new(ClaimTypes.Role, reader.Role)
+            };
+
+            var identity = new ClaimsIdentity(
+                claims, 
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity),
+                new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTime.UtcNow.AddMinutes(20)
+                });
         }
     }
 }

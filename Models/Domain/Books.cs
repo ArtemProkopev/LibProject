@@ -42,6 +42,7 @@ namespace LibProject.Models.Domain
 
         // Навигационные свойства
         public virtual ICollection<Favorites> Favorites { get; set; } = new List<Favorites>();
+        public virtual ICollection<Basket> Baskets { get; set; } = new List<Basket>();
         public virtual ICollection<BorrowedBook> BorrowedBooks { get; set; } = new List<BorrowedBook>();
 
         [NotMapped]

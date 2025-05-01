@@ -1,75 +1,82 @@
 @model IEnumerable<LibProject.Models.Domain.Book>
 @{
     ViewData["Title"] = "Каталог книг";
+    var genres = ViewBag.Genres as List<LibProject.Models.Domain.Genre>;
+    genres = genres ?? new List<LibProject.Models.Domain.Genre>();
 }
 
 <div class="container-fluid px-4">
-    <!-- Плавающая корзина -->
-    <div class="floating-cart">
-        <button class="btn btn-primary position-fixed end-0 top-50 me-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartPanel">
-            <i class="bi bi-cart3"></i>
-            <span class="badge bg-danger cart-badge">0</span>
-        </button>
-    </div>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <div class="floating-cart">
+            <button class="btn btn-primary position-fixed end-0 top-50 me-4" 
+                    type="button" 
+                    data-bs-toggle="offcanvas" 
+                    data-bs-target="#cartPanel">
+                <i class="bi bi-cart3"></i>
+                <span class="badge bg-danger cart-badge">0</span>
+            </button>
+        </div>
+    }
 
-    <!-- Offcanvas корзина -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="cartPanel">
         <div class="offcanvas-header bg-light">
             <h5 class="offcanvas-title">Ваша корзина</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body p-3">
-            <div class="list-group" id="cartItems">
-                <!-- Элементы корзины будут здесь -->
-            </div>
-            <div class="d-grid mt-3">
-                <button class="btn btn-success" id="checkoutButton">Оформить заказ</button>
-            </div>
+            <div class="list-group" id="cartItems"></div>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="d-grid mt-3">
+                    <button class="btn btn-success" id="checkoutButton">Оформить заказ</button>
+                </div>
+            }
         </div>
     </div>
 
-    <!-- Герой-секция -->
     <header class="hero-section bg-gradient-primary text-center py-5 mb-5">
         <div class="container">
             <h1 class="display-4 fw-bold text-white mb-3">📚 Каталог книг</h1>
             <p class="lead text-light mb-4">Откройте для себя мир великих произведений</p>
             
-            <!-- Поиск с иконкой -->
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="input-group input-group-lg shadow">
                         <span class="input-group-text bg-white border-0">
                             <i class="bi bi-search text-muted"></i>
                         </span>
-                        <input type="text" class="form-control border-0" id="searchInput" placeholder="Поиск по названию, автору или жанру">
+                        <input type="text" 
+                               class="form-control border-0" 
+                               id="searchInput" 
+                               placeholder="Поиск по названию, автору или жанру">
                     </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Основной контент -->
     <main class="container">
         <div class="row g-4">
-            <!-- Фильтры -->
             <aside class="col-lg-3">
                 <div class="card shadow-sm sticky-top" style="top: 20px;">
                     <div class="card-header bg-primary text-white py-3">
                         <h5 class="mb-0"><i class="bi bi-funnel"></i> Фильтры</h5>
                     </div>
                     <div class="card-body">
-                        <!-- Аккордеон фильтров -->
                         <div class="accordion" id="filterAccordion">
-                            <!-- Жанры -->
                             <div class="accordion-item">
                                 <h6 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#genreFilters">
+                                    <button class="accordion-button" 
+                                            type="button" 
+                                            data-bs-toggle="collapse" 
+                                            data-bs-target="#genreFilters">
                                         Жанры
                                     </button>
                                 </h6>
                                 <div id="genreFilters" class="accordion-collapse collapse show">
                                     <div class="accordion-body">
-                                        @foreach (var genre in ViewBag.Genres)
+                                        @foreach (var genre in genres)
                                         {
                                             <div class="form-check">
                                                 <input class="form-check-input genre-filter" 
@@ -77,7 +84,7 @@
                                                        value="@genre.Id" 
                                                        id="genre-@genre.Id">
                                                 <label class="form-check-label" for="genre-@genre.Id">
-                                                    @genre.Name
+                                                    @(genre?.Name ?? "Без названия")
                                                 </label>
                                             </div>
                                         }
@@ -85,21 +92,27 @@
                                 </div>
                             </div>
 
-                            <!-- Год издания -->
                             <div class="accordion-item">
                                 <h6 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#yearFilters">
+                                    <button class="accordion-button collapsed" 
+                                            type="button" 
+                                            data-bs-toggle="collapse" 
+                                            data-bs-target="#yearFilters">
                                         Год издания
                                     </button>
                                 </h6>
                                 <div id="yearFilters" class="accordion-collapse collapse">
                                     <div class="accordion-body">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="yearBefore1900">
+                                            <input class="form-check-input" 
+                                                   type="checkbox" 
+                                                   id="yearBefore1900">
                                             <label class="form-check-label" for="yearBefore1900">До 1900</label>
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="yearAfter1900">
+                                            <input class="form-check-input" 
+                                                   type="checkbox" 
+                                                   id="yearAfter1900">
                                             <label class="form-check-label" for="yearAfter1900">После 1900</label>
                                         </div>
                                     </div>
@@ -110,7 +123,6 @@
                 </div>
             </aside>
 
-            <!-- Список книг -->
             <section class="col-lg-9">
                 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="bookList">
                     @if (!Model.Any())
@@ -134,12 +146,24 @@
                                              alt="@book.Title"
                                              style="height: 300px; object-fit: cover;">
                                         <div class="card-actions position-absolute top-0 end-0 p-2">
-                                            <button class="btn btn-icon add-to-favorites" 
-                                                    data-book-id="@book.Id"
-                                                    data-bs-toggle="tooltip" 
-                                                    title="@(book.IsFavorite ? "Удалить из избранного" : "Добавить в избранное")">
-                                                <i class="bi @(book.IsFavorite ? "bi-heart-fill text-danger" : "bi-heart") fs-5"></i>
-                                            </button>
+                                            @if (User.Identity?.IsAuthenticated == true)
+                                            {
+                                                <button class="btn btn-icon add-to-favorites" 
+                                                        data-book-id="@book.Id"
+                                                        data-bs-toggle="tooltip" 
+                                                        title="@(book.IsFavorite ? "Удалить из избранного" : "Добавить в избранное")">
+                                                    <i class="bi @(book.IsFavorite ? "bi-heart-fill text-danger" : "bi-heart") fs-5"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-icon" 
+                                                        disabled 
+                                                        data-bs-toggle="tooltip" 
+                                                        title="Войдите для добавления в избранное">
+                                                    <i class="bi bi-heart fs-5"></i>
+                                                </button>
+                                            }
                                         </div>
                                         <div class="book-badge position-absolute start-0 bottom-0 m-2">
                                             <span class="badge @(book.IsAvailable ? "bg-success" : "bg-secondary")">
@@ -150,18 +174,31 @@
                                     <div class="card-body d-flex flex-column">
                                         <h5 class="card-title fw-bold mb-3">@book.Title</h5>
                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <span class="badge bg-primary">@book.Genre?.Name</span>
+                                            <span class="badge bg-primary">
+                                                @(book.Genre?.Name ?? "Без жанра")
+                                            </span>
                                             <small class="text-muted">@book.Year</small>
                                         </div>
                                         <p class="card-text text-muted mb-4">@book.Author</p>
                                         
                                         <div class="mt-auto d-flex justify-content-between align-items-center">
                                             <div class="price">₽ @book.Price.ToString("N0")</div>
-                                            <button class="btn btn-primary add-to-cart" 
-                                                    data-book-id="@book.Id"
-                                                    @(book.IsAvailable ? "" : "disabled")>
-                                                <i class="bi bi-cart-plus me-2"></i>В корзину
-                                            </button>
+                                            @if (User.Identity?.IsAuthenticated == true)
+                                            {
+                                                <button class="btn btn-primary add-to-cart" 
+                                                        data-book-id="@book.Id"
+                                                        @(book.IsAvailable ? "" : "disabled")>
+                                                    <i class="bi bi-cart-plus me-2"></i>В корзину
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-primary" 
+                                                        disabled 
+                                                        title="Войдите для добавления в корзину">
+                                                    <i class="bi bi-cart-plus me-2"></i>В корзину
+                                                </button>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -177,41 +214,41 @@
 @section Scripts {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Инициализация тултипов
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        const tooltipList = [...tooltipTriggerList].map(t => new bootstrap.Tooltip(t));
 
-        // Обработчик корзины
         const updateCart = async () => {
             try {
                 const response = await fetch('/Cart/GetCart');
-                if (!response.ok) throw new Error('Network error');
+                if (!response.ok) return;
                 
                 const data = await response.json();
-                document.querySelector('.cart-badge').textContent = data.totalItems;
+                const badge = document.querySelector('.cart-badge');
+                if (badge) badge.textContent = data.totalItems || 0;
                 
-                const cartItemsHTML = data.items.map(item => `
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6>${item.title}</h6>
-                            <small class="text-muted">${item.author} (${item.addedDate})</small>
+                const itemsContainer = document.getElementById('cartItems');
+                if (itemsContainer) {
+                    itemsContainer.innerHTML = data.items?.map(item => `
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6>${item.title || 'Без названия'}</h6>
+                                <small class="text-muted">${item.author || 'Неизвестный автор'} (${item.addedDate || ''})</small>
+                            </div>
+                            <div>
+                                <span class="me-3">₽${item.price?.toFixed(2) || '0.00'}</span>
+                                <button class="btn btn-sm btn-danger remove-from-cart" 
+                                        data-item-id="${item.id}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div>
-                            <span class="me-3">₽${item.price}</span>
-                            <button class="btn btn-sm btn-danger remove-from-cart" data-item-id="${item.id}">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-                
-                document.getElementById('cartItems').innerHTML = cartItemsHTML;
+                    `).join('') || '';
+                }
             } catch (error) {
                 console.error('Ошибка обновления корзины:', error);
             }
         };
 
-        // Добавление в корзину
         document.querySelectorAll('.add-to-cart').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const bookId = this.dataset.bookId;
@@ -219,39 +256,45 @@
                     const response = await fetch(`/Cart/AddToCart?bookId=${bookId}`, {
                         method: 'POST'
                     });
-                    
-                    if (response.ok) {
-                        await updateCart();
-                        this.classList.add('added');
-                        setTimeout(() => this.classList.remove('added'), 500);
-                    }
+                    if (response.status === 401) window.location.href = '/Account/Login';
+                    if (response.ok) await updateCart();
                 } catch (error) {
                     console.error('Ошибка:', error);
                 }
             });
         });
 
-        // Избранное
+        document.getElementById('cartItems')?.addEventListener('click', async (e) => {
+            const deleteBtn = e.target.closest('.remove-from-cart');
+            if (deleteBtn) {
+                try {
+                    const response = await fetch(`/Cart/RemoveFromCart?itemId=${deleteBtn.dataset.itemId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) await updateCart();
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                }
+            }
+        });
+
         document.querySelectorAll('.add-to-favorites').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const bookId = this.dataset.bookId;
                 const icon = this.querySelector('i');
-                
                 try {
                     const response = await fetch(`/Favorites/ToggleFavorite?bookId=${bookId}`, {
                         method: 'POST'
                     });
-                    
+                    if (response.status === 401) window.location.href = '/Account/Login';
                     if (response.ok) {
                         const result = await response.json();
-                        icon.classList.toggle('bi-heart-fill', result.isFavorite);
-                        icon.classList.toggle('bi-heart', !result.isFavorite);
-                        icon.classList.toggle('text-danger', result.isFavorite);
-                        
-                        // Обновление подсказки
+                        icon?.classList.toggle('bi-heart-fill', result.isFavorite);
+                        icon?.classList.toggle('bi-heart', !result.isFavorite);
+                        icon?.classList.toggle('text-danger', result.isFavorite);
                         this.setAttribute('title', result.isFavorite ? 
                             "Удалить из избранного" : "Добавить в избранное");
-                        tooltipList.find(t => t._element === this).setContent({'.tooltip-inner': this.title});
+                        tooltipList.find(t => t._element === this)?.setContent({'.tooltip-inner': this.title});
                     }
                 } catch (error) {
                     console.error('Ошибка:', error);
@@ -259,8 +302,7 @@
             });
         });
 
-        // Первоначальная загрузка корзины
-        updateCart();
+        if (document.querySelector('.floating-cart')) updateCart();
     });
 </script>
 }

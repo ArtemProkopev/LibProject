@@ -1,4 +1,3 @@
-// Controllers/CartController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LibProject.DataBase;
@@ -24,26 +23,36 @@ namespace LibProject.Controllers
             var userId = GetCurrentUserId();
             var book = await _context.Books.FindAsync(bookId);
 
-            if (book == null)
-                return NotFound("Книга не найдена");
+            if (book == null || !book.IsAvailable)
+                return BadRequest("Книга недоступна");
 
             var existingItem = await _context.Baskets
                 .FirstOrDefaultAsync(b => b.BookId == bookId && b.ReaderId == userId);
 
             if (existingItem == null)
             {
-                var basketItem = new Basket
+                _context.Baskets.Add(new Basket
                 {
                     BookId = bookId,
-                    ReaderId = userId
-                };
-
-                _context.Baskets.Add(basketItem);
+                    ReaderId = userId,
+                    AddedDate = DateTime.UtcNow
+                });
                 await _context.SaveChangesAsync();
             }
 
-            var cartItems = await GetCartItems(userId);
-            return Json(cartItems);
+            return Json(await GetCartItems(userId));
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> RemoveFromCart(int itemId)
+        {
+            var item = await _context.Baskets.FindAsync(itemId);
+            if (item != null)
+            {
+                _context.Baskets.Remove(item);
+                await _context.SaveChangesAsync();
+            }
+            return Ok();
         }
 
         [HttpGet]
@@ -77,9 +86,9 @@ namespace LibProject.Controllers
         }
 
         private int GetCurrentUserId()
-				{
-						var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-						return int.Parse(userIdClaim ?? throw new InvalidOperationException("User not found"));
-				}
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.Parse(userIdClaim ?? throw new InvalidOperationException("User not found"));
+        }
     }
 }

@@ -34,7 +34,8 @@ namespace LibProject.Migrations
                     first_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     last_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     password = table.Column<string>(type: "text", nullable: false),
-                    registration_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    registration_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    role = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {

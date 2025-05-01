@@ -19,6 +19,20 @@ namespace LibProject.DataBase
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Конфигурация для Basket
+            modelBuilder.Entity<Basket>(entity =>
+            {
+                entity.HasOne(b => b.Book)
+                    .WithMany(b => b.Baskets)
+                    .HasForeignKey(b => b.BookId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(b => b.Reader)
+                    .WithMany(r => r.Baskets)
+                    .HasForeignKey(b => b.ReaderId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
             // Конфигурация для Favorites
             modelBuilder.Entity<Favorites>(entity =>
             {
@@ -30,20 +44,6 @@ namespace LibProject.DataBase
                 entity.HasOne(f => f.Reader)
                     .WithMany(r => r.Favorites)
                     .HasForeignKey(f => f.ReaderId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            // Конфигурация для Basket
-            modelBuilder.Entity<Basket>(entity =>
-            {
-                entity.HasOne(b => b.Book)
-                    .WithMany()
-                    .HasForeignKey(b => b.BookId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(b => b.Reader)
-                    .WithMany(r => r.Baskets)
-                    .HasForeignKey(b => b.ReaderId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 

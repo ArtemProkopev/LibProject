@@ -19,10 +19,7 @@ namespace LibProject.Models.Domain
         [Column("added_date")]
         public DateTime AddedDate { get; set; } = DateTime.UtcNow;
 
-        [ForeignKey(nameof(BookId))]
         public virtual Book Book { get; set; } = null!;
-
-        [ForeignKey(nameof(ReaderId))]
         public virtual Reader Reader { get; set; } = null!;
     }
 }

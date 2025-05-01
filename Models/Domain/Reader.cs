@@ -1,7 +1,6 @@
-using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections.Generic;
 
 namespace LibProject.Models.Domain
 {
@@ -12,23 +11,23 @@ namespace LibProject.Models.Domain
         [Column("id")]
         public int Id { get; set; }
 
-        [Required]
         [Column("first_name")]
         [MaxLength(50)]
-        public string FirstName { get; set; } = string.Empty;
+        public string FirstName { get; set; } = null!;
 
-        [Required]
         [Column("last_name")]
         [MaxLength(50)]
-        public string LastName { get; set; } = string.Empty;
+        public string LastName { get; set; } = null!;
 
-        [Required]
         [Column("password")]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
+        public string Password { get; set; } = null!;
 
         [Column("registration_date")]
         public DateTime RegistrationDate { get; set; } = DateTime.UtcNow;
+
+        [Column("role")]
+        [MaxLength(20)]
+        public string Role { get; set; } = "User";
 
         // Навигационные свойства
         public virtual ICollection<Basket> Baskets { get; set; } = new List<Basket>();

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LibProject.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20250501170708_AddSampleBooks")]
+    [Migration("20250501180540_AddSampleBooks")]
     partial class AddSampleBooks
     {
         /// <inheritdoc />
@@ -151,10 +151,12 @@ namespace LibProject.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BookId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("BookId");
 
                     b.Property<int>("ReaderId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ReaderId");
 
                     b.HasKey("Id");
 
@@ -215,6 +217,12 @@ namespace LibProject.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("registration_date");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
+
                     b.HasKey("Id");
 
                     b.ToTable("Reader");
@@ -223,7 +231,7 @@ namespace LibProject.Migrations
             modelBuilder.Entity("LibProject.Models.Domain.Basket", b =>
                 {
                     b.HasOne("LibProject.Models.Domain.Book", "Book")
-                        .WithMany()
+                        .WithMany("Baskets")
                         .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -288,6 +296,8 @@ namespace LibProject.Migrations
 
             modelBuilder.Entity("LibProject.Models.Domain.Book", b =>
                 {
+                    b.Navigation("Baskets");
+
                     b.Navigation("BorrowedBooks");
 
                     b.Navigation("Favorites");

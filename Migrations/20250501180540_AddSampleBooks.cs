@@ -4,21 +4,21 @@
 
 namespace LibProject.Migrations
 {
+    /// <inheritdoc />
     public partial class AddSampleBooks : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Insert into Genre table with correct column name
             migrationBuilder.InsertData(
-                table: "Genre", // Correct table name
-                columns: new[] { "genresname" }, // Column is 'genresname' in DB
+                table: "Genre",
+                columns: new[] { "genresname" },
                 values: new object[,]
                 {
                     { "Роман" },
                     { "Антиутопия" }
                 });
 
-            // Insert into Books with correct column names
             migrationBuilder.InsertData(
                 table: "Books",
                 columns: new[] { "title", "author", "year", "price", "image_url", "is_available", "genre_id" },
@@ -31,7 +31,7 @@ namespace LibProject.Migrations
                         1200.00m,
                         "https://example.com/war-and-peace.jpg",
                         true,
-                        1 // Ensure this matches the generated Genre Ids
+                        1
                     },
                     {
                         "1984",
@@ -45,9 +45,10 @@ namespace LibProject.Migrations
                 });
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            // Optional: Add code to remove the inserted data if needed
+
         }
     }
 }
