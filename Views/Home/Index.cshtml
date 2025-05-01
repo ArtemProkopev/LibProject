@@ -1,0 +1,179 @@
+@{
+    ViewData["Title"] = "Каталог книг";
+}
+
+<div class="container-fluid px-4">
+    <!-- Плавающая корзина -->
+    <div class="floating-cart">
+        <button class="btn btn-primary position-fixed end-0 top-50 me-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartPanel">
+            <i class="bi bi-cart3"></i>
+            <span class="badge bg-danger cart-badge">0</span>
+        </button>
+    </div>
+
+    <!-- Offcanvas корзина -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cartPanel">
+        <div class="offcanvas-header bg-light">
+            <h5 class="offcanvas-title">Ваша корзина</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-3">
+            <div class="list-group" id="cartItems">
+                <!-- Элементы корзины будут здесь -->
+            </div>
+            <div class="d-grid mt-3">
+                <button class="btn btn-success" id="checkoutButton">Оформить заказ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Герой-секция -->
+    <header class="hero-section bg-gradient-primary text-center py-5 mb-5">
+        <div class="container">
+            <h1 class="display-4 fw-bold text-white mb-3">📚 Каталог книг</h1>
+            <p class="lead text-light mb-4">Откройте для себя мир великих произведений</p>
+            
+            <!-- Поиск с иконкой -->
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="input-group input-group-lg shadow">
+                        <span class="input-group-text bg-white border-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-0" id="searchInput" placeholder="Поиск по названию, автору или жанру">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="container">
+        <div class="row g-4">
+            <!-- Фильтры -->
+            <aside class="col-lg-3">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h5 class="mb-0"><i class="bi bi-funnel"></i> Фильтры</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Аккордеон фильтров -->
+                        <div class="accordion" id="filterAccordion">
+                            <!-- Жанры -->
+                            <div class="accordion-item">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#genreFilters">
+                                        Жанры
+                                    </button>
+                                </h6>
+                                <div id="genreFilters" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="genreRomance">
+                                            <label class="form-check-label" for="genreRomance">Роман</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="genreFantasy">
+                                            <label class="form-check-label" for="genreFantasy">Фэнтези</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="genreSciFi">
+                                            <label class="form-check-label" for="genreSciFi">Научная фантастика</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Год издания -->
+                            <div class="accordion-item">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#yearFilters">
+                                        Год издания
+                                    </button>
+                                </h6>
+                                <div id="yearFilters" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="yearBefore1900">
+                                            <label class="form-check-label" for="yearBefore1900">До 1900</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="yearAfter1900">
+                                            <label class="form-check-label" for="yearAfter1900">После 1900</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Список книг -->
+            <section class="col-lg-9">
+                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="bookList">
+                    <!-- Карточка книги -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm hover-effect">
+                            <div class="position-relative">
+                                <img src="https://cdn.respublica.ru/uploads/00/00/00/23/sq/e91e586af3b38e1d.jpg?1434988722" 
+                                     class="card-img-top book-image" 
+                                     alt="Обложка книги">
+                                <div class="card-actions position-absolute top-0 end-0 p-2">
+                                    <button class="btn btn-sm btn-light rounded-circle shadow-sm add-to-favorites">
+                                        <i class="bi bi-heart"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-primary rounded-circle shadow-sm add-to-cart">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">Война и мир</h5>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-primary">Роман</span>
+                                    <small class="text-muted">1869</small>
+                                </div>
+                                <p class="card-text text-muted">Лев Толстой</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Остальные карточки книг с аналогичной структурой -->
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #2c3e50, #3498db);
+        border-radius: 0 0 2rem 2rem;
+    }
+
+    .hover-effect {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .book-image {
+        height: 300px;
+        object-fit: cover;
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
+
+    .floating-cart {
+        z-index: 1000;
+    }
+
+    .cart-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+    }
+</style>

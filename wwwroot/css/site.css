@@ -1,0 +1,196 @@
+:root {
+	--primary-color: #2a2e45;
+	--secondary-color: #7f7b82;
+	--accent-color: #ff6b6b;
+	--background-light: #f8f9fa;
+	--gradient-start: #6c5ce7;
+	--gradient-end: #48d1cc;
+}
+
+html {
+	position: relative;
+	min-height: 100%;
+	font-size: 14px;
+	scroll-behavior: smooth;
+}
+
+@media (min-width: 768px) {
+	html {
+		font-size: 16px;
+	}
+}
+
+body {
+	margin-bottom: 60px;
+	background: var(--background-light);
+	font-family: 'Inter', system-ui, -apple-system, sans-serif;
+	line-height: 1.6;
+	color: var(--primary-color);
+}
+
+/* Навигация */
+.navbar {
+	background: linear-gradient(
+		135deg,
+		var(--gradient-start),
+		var(--gradient-end)
+	);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link {
+	color: rgba(255, 255, 255, 0.9) !important;
+	padding: 0.5rem 1.2rem !important;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	border-radius: 8px;
+}
+
+.nav-link:hover {
+	background: rgba(255, 255, 255, 0.15);
+	transform: translateY(-2px);
+}
+
+/* Карточки книг */
+.book-card {
+	border: none;
+	border-radius: 16px;
+	overflow: hidden;
+	transition: all 0.3s ease;
+	background: white;
+	position: relative;
+}
+
+.book-card::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.book-card:hover {
+	transform: translateY(-8px);
+}
+
+.book-card:hover::before {
+	opacity: 1;
+}
+
+.book-image {
+	width: 100%;
+	height: 320px;
+	object-fit: cover;
+	transition: transform 0.3s ease;
+}
+
+.book-card:hover .book-image {
+	transform: scale(1.03);
+}
+
+.card-body {
+	padding: 1.5rem;
+}
+
+.card-title {
+	font-weight: 600;
+	color: var(--primary-color);
+	margin-bottom: 0.75rem;
+	font-size: 1.25rem;
+}
+
+.card-text {
+	color: var(--secondary-color);
+	font-size: 0.9rem;
+	margin-bottom: 0.5rem;
+}
+
+/* Кнопки */
+.btn {
+	border-radius: 8px;
+	padding: 0.75rem 1.5rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.btn-primary {
+	background: linear-gradient(
+		135deg,
+		var(--gradient-start),
+		var(--gradient-end)
+	);
+	border: none;
+}
+
+.btn-primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
+}
+
+/* Формы */
+.form-control {
+	border: 2px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 0.75rem 1rem;
+	transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+	border-color: var(--accent-color);
+	box-shadow: none;
+}
+
+.input-group-text {
+	background: linear-gradient(
+		135deg,
+		var(--gradient-start),
+		var(--gradient-end)
+	);
+	color: white;
+	border: none;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-fadein {
+	animation: fadeIn 0.6s ease forwards;
+}
+
+/* Ховер-эффекты */
+.hover-scale {
+	transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+	transform: scale(1.02);
+}
+
+/* Медиа-запросы для мобилок */
+@media (max-width: 768px) {
+	.book-image {
+		height: 240px;
+	}
+
+	.nav-link {
+		margin: 4px 0;
+	}
+
+	.card-body {
+		padding: 1rem;
+	}
+}
