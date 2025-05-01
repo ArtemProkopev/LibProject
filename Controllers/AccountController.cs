@@ -51,10 +51,9 @@ namespace LibProject.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null, bool requireAdmin = false)
+        public IActionResult Login(string? returnUrl = null)
         {
             ViewBag.ReturnUrl = returnUrl;
-            ViewBag.RequireAdmin = requireAdmin;
             return View();
         }
 
@@ -75,11 +74,9 @@ namespace LibProject.Controllers
                 return View(model);
             }
 
-            // Проверка прав администратора если требуется
             if (!string.IsNullOrEmpty(returnUrl) && returnUrl.Contains("/Admin") && reader.Role != "Admin")
             {
-                ModelState.AddModelError(string.Empty, "Требуются права администратора");
-                ViewBag.RequireAdmin = true;
+                ModelState.AddModelError(string.Empty, "Доступ запрещен");
                 return View(model);
             }
 
@@ -88,9 +85,10 @@ namespace LibProject.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
 
@@ -105,7 +103,9 @@ namespace LibProject.Controllers
 
             var identity = new ClaimsIdentity(
                 claims, 
-                CookieAuthenticationDefaults.AuthenticationScheme);
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                ClaimTypes.Name,
+                ClaimTypes.Role);
 
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
@@ -113,7 +113,8 @@ namespace LibProject.Controllers
                 new AuthenticationProperties
                 {
                     IsPersistent = true,
-                    ExpiresUtc = DateTime.UtcNow.AddMinutes(20)
+                    ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
+                    AllowRefresh = true
                 });
         }
     }

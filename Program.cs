@@ -6,7 +6,7 @@ using LibProject.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Настройка аутентификации
+// Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -14,27 +14,26 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/Login";
         options.Cookie.HttpOnly = true;
         options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+        options.SlidingExpiration = true;
     });
 
+// Authorization
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => 
         policy.RequireRole("Admin"));
 });
 
-builder.Services.AddSession();
-
-// Настройка базы данных
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Database
 builder.Services.AddDbContext<ApplicationContext>(options =>
     options.UseLazyLoadingProxies()
-           .UseNpgsql(connectionString));
+           .UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Инициализация администратора
+// Initialize Admin
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
@@ -47,11 +46,11 @@ using (var scope = app.Services.CreateScope())
             Password = PasswordHasher.HashPassword("admin123"),
             Role = "Admin"
         });
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }
 
-// Конфигурация middleware
+// Middleware
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -63,7 +62,6 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
